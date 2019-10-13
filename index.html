@@ -2,8 +2,29 @@
 <html>
 <head>
 <meta charset="utf-8"> 
+<meta name="viewport" content="width=500px initial-scale=0.64" />
 <title>Canvas</title>
 <style>
+* {margin:0px; padding:0px;}
+body {width:500px;}
+.title {padding:10px; margin-top:44px;}
+.main {padding-left:10px; margin:auto;}
+/* 色や太さを選択する部分のCSS */
+.toolbar li {width:44px; height:44px; margin:auto;list-style-type: none; border:1px solid #ccc; border-radius:6px; margin:10px; display:block; float:left;}
+ul {margin:0; padding:0; list-style:none;}
+/*
+#small {text-align:center; line-height:44px; font-size:100%;}
+#middle {text-align:center; line-height:44px; font-size:200%;}
+#large {text-align:center; line-height:44px; font-size:400%;}
+*/
+/* お絵描きする部分のCSS */
+.canvas {width:450px; height:400px; border:1px solid #ccc;}
+.canvas canvas {width:450px; height:400px;}
+/* 削除ボタンのCSS */
+#clear {width:450px; height:44px; margin-top:10px;}
+
+
+/*
 body {
     margin: 20px;
 }
@@ -40,21 +61,25 @@ li {
     width: 50px;
     height: 50px;
 }
+*/
 </style>
 </head>
 <body>
-<canvas width="500" height="400"></canvas>
-<ul>
-<li style="background-color:#000"></li>
-<li style="background-color:#f00"></li>
-<li style="background-color:#0f0"></li>
-<li style="background-color:#00f"></li>
-<li style="background-color:#ff0"></li>
-<li style="background-color:#fff"></li>
-</ul>
-<div id="button">
-<input type="button" id="save" value="保存" />
-<input type="button" id="clear" value="消去" />
+<div class='main'>
+	<div class='canvas'><canvas width="500" height="400"></canvas></div>
+	<div class='toolbar'>
+		<ul>
+			<li style="background-color:#000"></li>
+			<li style="background-color:#f00"></li>
+			<li style="background-color:#0f0"></li>
+			<li style="background-color:#00f"></li>
+			<li style="background-color:#ff0"></li>
+			<li style="background-color:#fff"></li>
+		</ul>
+	<div id="button">
+		<input type="button" id="save" value="保存" />
+		<input type="button" id="clear" value="消去" />
+	</div>
 </div>
  
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
