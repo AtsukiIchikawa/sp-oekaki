@@ -4,66 +4,20 @@
 <meta charset="utf-8"> 
 <meta name="viewport" content="width=500px initial-scale=0.64" />
 <title>Canvas</title>
+
 <style>
-* {margin:0px; padding:0px;}
-body {width:500px;}
-.title {padding:10px; margin-top:44px;}
-.main {padding-left:10px; margin:auto;}
-/* 色や太さを選択する部分のCSS */
-.toolbar li {width:44px; height:44px; margin:auto;list-style-type: none; border:1px solid #ccc; border-radius:6px; margin:10px; display:block; float:left;}
-ul {margin:0; padding:0; list-style:none;}
-/*
-#small {text-align:center; line-height:44px; font-size:100%;}
-#middle {text-align:center; line-height:44px; font-size:200%;}
-#large {text-align:center; line-height:44px; font-size:400%;}
-*/
-/* お絵描きする部分のCSS */
-.canvas {width:450px; height:400px; border:1px solid #ccc;}
-.canvas canvas {width:450px; height:400px;}
-/* 削除ボタンのCSS */
-#clear {width:450px; height:44px; margin-top:10px;}
-
-
-/*
-body {
-    margin: 20px;
-}
-canvas {
-    top: 20px;
-    left: 20px;
-    border: 5px solid #ccc;
-}
-#button {
-    position: relative;
-    top: -55px;
-    left: 345px;
-}
-#save {
-    font-size: 120%;
-    width: 80px;
-    height: 50px;
-}
-#clear {
-    font-size: 120%;
-    width: 80px;
-    height: 50px;
-}
-ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-li {
-    cursor:pointer;
-    cursor:hand;
-    display:inline-block;
-    border: 1px solid #000;
-    width: 50px;
-    height: 50px;
-}
-*/
+	* {margin:0px; padding:0px;}
+	body {width:500px;}
+	.title {padding:10px; margin-top:44px;}
+	.main {padding-left:10px; margin:auto;}
+	.toolbar li {width:44px; height:44px; margin:auto;list-style-type: none; border:1px solid #ccc; border-radius:6px; margin:10px; display:block; float:left;}
+	ul {margin:0; padding:0; list-style:none;}
+	.canvas {width:450px; height:400px; border:1px solid #ccc;}
+	.canvas canvas {width:450px; height:400px;}
 </style>
+
 </head>
+
 <body>
 <div class='main'>
 	<div class='canvas'><canvas id="canvas" width="500" height="400"></canvas></div>
@@ -167,6 +121,10 @@ $(function() {
 */
 
 
+
+
+var socket = io();
+
 window.addEventListener("load", function() {
 	
 	// 変数宣言
@@ -206,14 +164,29 @@ window.addEventListener("load", function() {
 	canvas.addEventListener("touchmove", function(event) {
 		var pos = getPos(event);
 		if(drawing){
+			context.lineWidth = 2;
 			context.beginPath();
 			context.moveTo(oldPos.x, oldPos.y);
 			context.lineTo(pos.x, pos.y);
 			context.stroke();
 			context.closePath();
+      socket.emit('server send', { fx:oldPos.x, fy:oldPos.y, tx:pos.x, ty:pos.y, color:context.strokeStyle });
 			oldPos = pos;
 		}
 	}, false);
+
+
+	// サーバからメッセージ受信
+	socket.on('send user', function (msg) {
+		context.strokeStyle = msg.color;
+		context.lineWidth = 2;
+		context.beginPath();
+		context.moveTo(msg.fx, msg.fy);
+		context.lineTo(msg.tx, msg.ty);
+		context.stroke();
+		context.closePath();
+	});
+
 
 	// 関数
 	function scrollX() { return document.documentElement.scrollLeft || document.body.scrollLeft; }
