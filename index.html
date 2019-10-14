@@ -66,7 +66,7 @@ li {
 </head>
 <body>
 <div class='main'>
-	<div class='canvas'><canvas width="500" height="400"></canvas></div>
+	<div class='canvas'><canvas id="canvas" width="500" height="400"></canvas></div>
 	<div class='toolbar'>
 		<ul>
 			<li style="background-color:#000"></li>
@@ -85,6 +85,7 @@ li {
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script type="text/javascript">
+/*
 $(function() {
     var offset = 5;
     var fromX;
@@ -163,6 +164,76 @@ $(function() {
         window.open(d, 'save');
     });
 });
+*/
+
+
+window.addEventListener("load", function() {
+	
+	// 変数宣言
+	var canvas = document.getElementById("canvas");
+	var context = canvas.getContext("2d");
+	var canvas_w = 450;
+	var canvas_h = 400;
+	var drawing = false;
+	var oldPos;
+
+	// CanvasとContextを初期化
+	canvas.width = canvas_w;
+	canvas.height = canvas_h;
+	context.strokeStyle = "#000000";
+	context.lineWidth = 5;
+	context.lineJoin = "round";
+	context.lineCap = "round";
+
+	// タップ開始
+	canvas.addEventListener("touchstart", function(event) {
+		drawing = true;
+		oldPos = getPos(event);
+	}, false);
+
+	// タップ終了
+	canvas.addEventListener("touchend", function(event) {
+		drawing = false;
+	}, false);
+
+	// gesture(2箇所タッチ)イベント終了
+	canvas.addEventListener("gestureend", function(event) {
+		console.log("mouseout");
+		drawing = false;
+	}, false);
+
+	// 線引く
+	canvas.addEventListener("touchmove", function(event) {
+		var pos = getPos(event);
+		if(drawing){
+			context.beginPath();
+			context.moveTo(oldPos.x, oldPos.y);
+			context.lineTo(pos.x, pos.y);
+			context.stroke();
+			context.closePath();
+			oldPos = pos;
+		}
+	}, false);
+
+	// 関数
+	function scrollX() { return document.documentElement.scrollLeft || document.body.scrollLeft; }
+	function scrollY() { return document.documentElement.scrollTop || document.body.scrollTop; }
+	function getPos(event){
+		var mouseX = event.touches[0].clientX - $(canvas).position().left + scrollX();
+		var mouseY = event.touches[0].clientY - $(canvas).position().top + scrollY();
+		return { x:mouseX, y:mouseY };
+	}
+
+
+	// clearボタン
+	$("#clear").click(function() {
+		context.clearRect(0, 0, $(canvas).width(), $(canvas).height());
+	});
+
+
+}, false);
+
+
 </script>
 </body>
 </html>
