@@ -39,92 +39,7 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script type="text/javascript">
-/*
-$(function() {
-    var offset = 5;
-    var fromX;
-    var fromY;
-    var drawFlag = false;
-		//  描画コンテキストの取得
-    var context = $("canvas").get(0).getContext('2d');
-		var socket = io();
- 
-    // サーバからメッセージ受信
-    socket.on('send user', function (msg) {
-        context.strokeStyle = msg.color;
-        context.lineWidth = 2;
-        context.beginPath();
-        context.moveTo(msg.fx, msg.fy);
-        context.lineTo(msg.tx, msg.ty);
-        context.stroke();
-        context.closePath(); 
-    });
- 
-    socket.on('clear user', function () {
-        context.clearRect(0, 0, $('canvas').width(), $('canvas').height());
-    });
- 
-    $('canvas').mousedown(function(e) {
-        drawFlag = true;
-        fromX = e.pageX - $(this).offset().left - offset;
-        fromY = e.pageY - $(this).offset().top - offset;
-        return false;  // for chrome
-    });
- 
-    $('canvas').mousemove(function(e) {
-        if (drawFlag) {
-            draw(e);
-        }
-    });
- 
-    $('canvas').on('mouseup', function() {
-        drawFlag = false;
-    });
- 
-    $('canvas').on('mouseleave', function() {
-        drawFlag = false;
-    });
- 
-    $('li').click(function() {
-        context.strokeStyle = $(this).css('background-color');
-    });
- 
-    $('#clear').click(function(e) {
-        socket.emit('clear send');
-        e.preventDefault();
-        context.clearRect(0, 0, $('canvas').width(), $('canvas').height());
-    });
- 
-    function draw(e) {
-        var toX = e.pageX - $('canvas').offset().left - offset;
-        var toY = e.pageY - $('canvas').offset().top - offset;
-        context.lineWidth = 2;
-        context.beginPath();
-        context.moveTo(fromX, fromY);
-        context.lineTo(toX, toY);
-        context.stroke();
-        context.closePath();
- 
-        // サーバへメッセージ送信
-        socket.emit('server send', { fx:fromX, fy:fromY, tx:toX, ty:toY, color:context.strokeStyle });
-        fromX = toX;
-        fromY = toY;
-    }
- 
-    $('#save').click(function() {
-        //var d = $("canvas")[0].toDataURL("image/png");
-				var d = $('canvas')[0].toDataURL('image/png');
-        d = d.replace('image/png', 'image/octet-stream');
-        window.open(d, 'save');
-    });
-});
-*/
-
-
-
-
 var socket = io();
-
 window.addEventListener("load", function() {
 	
 	// 変数宣言
@@ -145,23 +60,27 @@ window.addEventListener("load", function() {
 
 	// タップ開始
 	canvas.addEventListener("touchstart", function(event) {
+		event.preventDefault();
 		drawing = true;
 		oldPos = getPos(event);
 	}, false);
 
 	// タップ終了
 	canvas.addEventListener("touchend", function(event) {
+		event.preventDefault();
 		drawing = false;
 	}, false);
 
 	// gesture(2箇所タッチ)イベント終了
 	canvas.addEventListener("gestureend", function(event) {
+		event.preventDefault();
 		console.log("mouseout");
 		drawing = false;
 	}, false);
 
 	// 線引く
 	canvas.addEventListener("touchmove", function(event) {
+		event.preventDefault();
 		var pos = getPos(event);
 		if(drawing){
 			context.lineWidth = 2;
@@ -170,14 +89,14 @@ window.addEventListener("load", function() {
 			context.lineTo(pos.x, pos.y);
 			context.stroke();
 			context.closePath();
-      socket.emit('server send', { fx:oldPos.x, fy:oldPos.y, tx:pos.x, ty:pos.y, color:context.strokeStyle });
+      socket.emit('context info', { fx:oldPos.x, fy:oldPos.y, tx:pos.x, ty:pos.y, color:context.strokeStyle });
 			oldPos = pos;
 		}
 	}, false);
 
 
 	// サーバからメッセージ受信
-	socket.on('send user', function (msg) {
+	socket.on('share context info', function (msg) {
 		context.strokeStyle = msg.color;
 		context.lineWidth = 2;
 		context.beginPath();
@@ -185,6 +104,16 @@ window.addEventListener("load", function() {
 		context.lineTo(msg.tx, msg.ty);
 		context.stroke();
 		context.closePath();
+	});
+	socket.on('clear all canvas', function (msg) {
+		context.clearRect(0, 0, $(canvas).width(), $(canvas).height());
+	});
+
+
+	// clearボタン
+	$("#clear").click(function() {
+		context.clearRect(0, 0, $(canvas).width(), $(canvas).height());
+		socket.emit('clear canvas');
 	});
 
 
@@ -196,12 +125,6 @@ window.addEventListener("load", function() {
 		var mouseY = event.touches[0].clientY - $(canvas).position().top + scrollY();
 		return { x:mouseX, y:mouseY };
 	}
-
-
-	// clearボタン
-	$("#clear").click(function() {
-		context.clearRect(0, 0, $(canvas).width(), $(canvas).height());
-	});
 
 
 }, false);

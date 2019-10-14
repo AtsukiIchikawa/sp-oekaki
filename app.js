@@ -12,15 +12,15 @@ app.get('/', function (req, res){
 io.sockets.on('connection', function(socket){
 
 	// クライアントからメッセージ受信
-	socket.on('clear send', function(){
+	socket.on('clear canvas', function(){
 		// 自分以外の全員に送る
-		socket.broadcast.emit('clear user');
+		socket.broadcast.emit('clear all canvas');
 	});
 
 	// クライアントからメッセージ受信
-	socket.on('server send', function(msg){
+	socket.on('context info', function(msg){
 		// 自分以外の全員に送る
-		socket.broadcast.emit('send user', msg);
+		socket.broadcast.emit('share context info', msg);
 	});
  
 	// 切断
